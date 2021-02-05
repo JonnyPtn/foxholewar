@@ -22,6 +22,19 @@ class War:
 	resistanceStartTime = None
 	requiredVictoryTowns = None
 
+class Map:
+	"""A class representing a map (hex)"""
+	rawName = None
+	prettyName = None
+
+class Report:
+	map = Map()
+	totalEnlistments = None
+	colonialCasualties = None
+	wardenCasualties = None
+	dayOfWar = None
+
+
 def getData(endpoint):
 	requestUrl = BaseURL + endpoint
 	response = requests.get(requestUrl)
@@ -41,8 +54,26 @@ def getCurrentWar():
 	return war
 
 def getMapList():
-	maps = getData("worldconquest/maps")
+	mapData = getData("worldconquest/maps")
 
-	# Each map name has a "Hex" suffix, so strip that, and add spaces where required
-	maps[:] = [re.sub(r"(\w)([A-Z])", r"\1 \2", map[:-3]) for map in maps]
+	maps = []
+	for rawMapName in mapData:
+		map = Map()
+		map.rawName = rawMapName
+
+		# For the pretty name we strip "Hex" from the end and add spaces
+		map.prettyName = re.sub(r"(\w)([A-Z])", r"\1 \2", rawMapName[:-3])
+		maps.append(map)
 	return maps
+
+def getReport( map ):
+	reportData = getData("worldconquest/warReport/" + map.rawName)
+	report = Report()
+	report.totalEnlistments = reportData["totalEnlistments"]
+	report.colonialCasualties = reportData["colonialCasualties"]
+	report.wardenCasualties = reportData["wardenCasualties"]
+	report.dayOfWar = reportData["dayOfWar"]
+	return report
+
+
+
