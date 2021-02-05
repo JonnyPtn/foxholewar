@@ -2,6 +2,7 @@ import datetime
 import enum
 import json
 import requests
+import re
 
 BaseURL = "https://war-service-live.foxholeservices.com/api/"
 
@@ -21,18 +22,27 @@ class War:
 	resistanceStartTime = None
 	requiredVictoryTowns = None
 
+def getData(endpoint):
+	requestUrl = BaseURL + endpoint
+	response = requests.get(requestUrl)
+	return json.loads(response.text)
 
 def getCurrentWar():
-	requestUrl = BaseURL + "worldconquest/war"
-	response = requests.get(requestUrl)
-	json_data = json.loads(response.text)
+	jsonData = getData("worldconquest/war")
 
 	war = War()
-	war.warId = json_data["warId"],
-	war.warNumber = json_data["warNumber"]
-	war.winner = json_data["winner"]
-	war.conquestStartTime = json_data["conquestStartTime"]
-	war.conquestEndTime = json_data["conquestEndTime"]
-	war.resistanceStartTime = json_data["resistanceStartTime"]
-	war.requiredVictoryTowns = json_data["requiredVictoryTowns"]
+	war.warId = jsonData["warId"],
+	war.warNumber = jsonData["warNumber"]
+	war.winner = jsonData["winner"]
+	war.conquestStartTime = jsonData["conquestStartTime"]
+	war.conquestEndTime = jsonData["conquestEndTime"]
+	war.resistanceStartTime = jsonData["resistanceStartTime"]
+	war.requiredVictoryTowns = jsonData["requiredVictoryTowns"]
 	return war
+
+def getMapList():
+	maps = getData("worldconquest/maps")
+
+	# Each map name has a "Hex" suffix, so strip that, and add spaces where required
+	maps[:] = [re.sub(r"(\w)([A-Z])", r"\1 \2", map[:-3]) for map in maps]
+	return maps
