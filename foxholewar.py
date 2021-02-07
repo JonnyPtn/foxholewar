@@ -11,6 +11,9 @@ class Team(enum.Enum):
 	NONE = 0
 	COLONIAL = 1
 	WARDENS = 2
+	
+	def __str__(self):
+		return self.name
 
 class MapMarkerType(enum.Enum):
 	"""Types of map marker"""
@@ -37,14 +40,14 @@ class Map:
 	mapItems = []
 	mapTextItems = []
 
-	def getReport( map ):
+	def getReport( self ):
 		"""
 		Returns
 		-------
 		Report
 		    A report on the current status of this map
 		"""
-		reportData = getData("worldconquest/warReport/" + map.rawName)
+		reportData = getData("worldconquest/warReport/" + self.rawName)
 		report = Report()
 		report.totalEnlistments = reportData["totalEnlistments"]
 		report.colonialCasualties = reportData["colonialCasualties"]

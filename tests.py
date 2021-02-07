@@ -37,6 +37,9 @@ class TestFoxholeWar(unittest.TestCase):
                 self.assertTrue(item.y)
                 self.assertTrue(item.flags is not None)
 
+            report = map.getReport()
+            self.assertTrue(report is not None)
+
     
 
 if __name__ == '__main__':
