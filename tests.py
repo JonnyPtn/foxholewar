@@ -35,7 +35,7 @@ class TestFoxholeWar(unittest.TestCase):
                 self.assertTrue(item.iconType)
                 self.assertTrue(item.x)
                 self.assertTrue(item.y)
-                self.assertTrue(item.flags)
+                self.assertTrue(item.flags is not None)
 
     
 

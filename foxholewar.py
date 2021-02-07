@@ -128,11 +128,14 @@ def getMapList():
 		# For the pretty name we strip "Hex" from the end and add spaces
 		map.prettyName = re.sub(r"(\w)([A-Z])", r"\1 \2", rawMapName[:-3])
 
-		# We get the static map data here too
+		# We get the static and dynamic data too
 		staticMapData = getData("worldconquest/maps/" + map.rawName + "/static")
+		dynamicMapData = getData("worldconquest/maps/" + map.rawName + "/dynamic/public")
+
 		map.scorchedVictoryTowns = staticMapData["scorchedVictoryTowns"]
 		map.regionId = staticMapData["regionId"]
-
+		
+		# It seems as though we only get text items from static data and regular items from dynamic data?
 		for item in staticMapData["mapTextItems"]:
 			textItem = MapTextItem()
 			textItem.text = item["text"]
@@ -141,7 +144,7 @@ def getMapList():
 			textItem.mapMarkerType = item["mapMarkerType"]
 			map.mapTextItems.append(textItem)
 			
-		for item in staticMapData["mapItems"]:
+		for item in dynamicMapData["mapItems"]:
 			mapItem = MapItem()
 			mapItem.teamId = item["teamId"]
 			mapItem.iconType = item["iconType"]
