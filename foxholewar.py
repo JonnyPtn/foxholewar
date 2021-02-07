@@ -40,9 +40,9 @@ class Map:
 	def getReport( map ):
 		"""
 		Returns
-	    -------
-	    Report
-	        A report on the current status of this map
+		-------
+		Report
+		    A report on the current status of this map
 		"""
 		reportData = getData("worldconquest/warReport/" + map.rawName)
 		report = Report()
@@ -79,14 +79,14 @@ class Report:
 def getData(endpoint):
 	"""
 	Parameters
-    ----------
-    endpoint : str
-        The endpoint to request data from
+	----------
+	endpoint : str
+	    The endpoint to request data from
 	
 	Returns
-    -------
-    dict
-        The loaded json data from the endpoint
+	-------
+	dict
+	    The loaded json data from the endpoint
 	"""
 	requestUrl = BaseURL + endpoint
 	response = requests.get(requestUrl)
@@ -95,9 +95,9 @@ def getData(endpoint):
 def getCurrentWar():
 	"""
 	Returns
-    -------
-    War
-        The War object for the war currently takin place
+	-------
+	War
+	    The War object for the war currently takin place
 	"""
 	jsonData = getData("worldconquest/war")
 
@@ -114,9 +114,9 @@ def getCurrentWar():
 def getMapList():
 	"""
 	Returns
-    -------
-    list
-        A list of all the maps
+	-------
+	list
+	    A list of all the maps
 	"""
 	mapData = getData("worldconquest/maps")
 
