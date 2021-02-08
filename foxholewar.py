@@ -6,6 +6,27 @@ import re
 
 BaseURL = "https://war-service-live.foxholeservices.com/api/"
 
+# Because the user facing names don't map cleanly to the raw ones we need a mapping table like this
+rawMapNameToPretty = {
+    "GreatMarchHex":"Great March",
+    "MarbanHollow":"Marban Hollow",
+    "ViperPitHex":"Viper Pit",
+    "ShackledChasmHex":"Shackled Chasm",
+    "LinnMercyHex":"The Linn of Mercy",
+    "DeadLandsHex":"Deadlands",
+    "HeartlandsHex":"The Heartlands",
+    "ReachingTrailHex":"Reaching Trail",
+    "UmbralWildwoodHex":"Umbral Wildwood",
+    "CallahansPassageHex":"Callahan's Passage",
+    "DrownedValeHex":"The Drowned Vale",
+    "MooringCountyHex":"The Moors",
+    "LochMorHex":"Loch Mor"
+}
+
+prettyMapNameToRaw = dict((reversed(item) for item in rawMapNameToPretty.items()))
+
+def isValidMapName(map):
+    return map in rawMapNameToPretty or map in prettyMapNameToRaw
 
 class Team(enum.Enum):
     """The teams"""
@@ -111,19 +132,19 @@ class Client:
         return war
 
     def getReport(self, map):
-    	"""
-    	Returns
-    	-------
-    	Report
-    	    A report on the current status of this map
-    	"""
-    	reportData = self.getData("worldconquest/warReport/" + map.rawName)
-    	report = Report()
-    	report.totalEnlistments = reportData["totalEnlistments"]
-    	report.colonialCasualties = reportData["colonialCasualties"]
-    	report.wardenCasualties = reportData["wardenCasualties"]
-    	report.dayOfWar = reportData["dayOfWar"]
-    	return report
+        """
+        Returns
+        -------
+        Report
+            A report on the current status of this map
+        """
+        reportData = self.getData("worldconquest/warReport/" + map.rawName)
+        report = Report()
+        report.totalEnlistments = reportData["totalEnlistments"]
+        report.colonialCasualties = reportData["colonialCasualties"]
+        report.wardenCasualties = reportData["wardenCasualties"]
+        report.dayOfWar = reportData["dayOfWar"]
+        return report
 
     def getMapList(self):
         """
@@ -140,8 +161,8 @@ class Client:
             map.rawName = rawMapName
 
             # For the pretty name we strip "Hex" from the end and add spaces
-            map.prettyName = re.sub(r"(\w)([A-Z])", r"\1 \2", rawMapName[:-3])
-
+            map.prettyName = rawMapNameToPretty[rawMapName]
+            
             # We get the static and dynamic data too
             staticMapData = self.getData(
                 "worldconquest/maps/" + map.rawName + "/static")
