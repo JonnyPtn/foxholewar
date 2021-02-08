@@ -1,11 +1,14 @@
+import foxholewar
 import unittest
 
-import foxholewar
 
 class TestFoxholeWar(unittest.TestCase):
 
+    def setUp(self):
+        self.client = foxholewar.Client()
+
     def testWarInfo(self):
-        war = foxholewar.getCurrentWar()
+        war = self.client.getCurrentWar()
         self.assertTrue(war.warId)
         self.assertTrue(war.warNumber)
         self.assertTrue(war.winner)
@@ -15,7 +18,7 @@ class TestFoxholeWar(unittest.TestCase):
         self.assertTrue(war.requiredVictoryTowns)
 
     def testMapList(self):
-        mapList = foxholewar.getMapList()
+        mapList = self.client.getMapList()
         self.assertTrue(mapList)
         
         for map in mapList:
@@ -37,7 +40,7 @@ class TestFoxholeWar(unittest.TestCase):
                 self.assertTrue(item.y)
                 self.assertTrue(item.flags is not None)
 
-            report = map.getReport()
+            report = self.client.getReport(map)
             self.assertTrue(report is not None)
 
     
