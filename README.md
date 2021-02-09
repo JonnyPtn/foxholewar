@@ -7,11 +7,14 @@ A python wrapper for the foxhole [war api](https://github.com/clapfoot/warapi)
 ```python
 from foxholewar import foxholewar
 
+# create the client
+client = foxholwar.Client()
+
 # get the list of maps
-maps = foxholewar.getMapList()
+maps = client.getMapList()
 
 # print the current war number
-war = foxholewar.getCurrentWar()
+war = client.getCurrentWar()
 print(war.warNumber)
 
 ```
