@@ -20,7 +20,12 @@ rawMapNameToPretty = {
     "CallahansPassageHex":"Callahan's Passage",
     "DrownedValeHex":"The Drowned Vale",
     "MooringCountyHex":"The Moors",
-    "LochMorHex":"Loch Mor"
+    "LochMorHex":"Loch Mor",
+    "StonecradleHex":"Stonecradle",
+    "FishermansRowHex":"Fishermans Row",
+    "WestgateHex":"Westgate",
+    "OarbreakerHex":"Oarbreaker Isles",
+    "FarranacCoastHex":"Farranac Coast"
 }
 
 prettyMapNameToRaw = dict((reversed(item) for item in rawMapNameToPretty.items()))
