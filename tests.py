@@ -8,17 +8,17 @@ class TestFoxholeWar(unittest.TestCase):
         self.client = foxholewar.Client()
 
     def testWarInfo(self):
-        war = self.client.getCurrentWar()
+        war = self.client.fetchCurrentWar()
         self.assertTrue(war.warId)
         self.assertTrue(war.warNumber)
         self.assertTrue(war.winner)
         self.assertTrue(war.conquestStartTime)
-        self.assertTrue(war.conquestEndTime or war.winner is foxholewar.Team.NONE)
+        self.assertTrue(war.conquestEndTime or foxholewar.Team[war.winner] is foxholewar.Team.NONE)
         self.assertTrue(war.resistanceStartTime or not war.conquestEndTime)
         self.assertTrue(war.requiredVictoryTowns)
 
     def testMapList(self):
-        mapList = self.client.getMapList()
+        mapList = self.client.fetchMapList()
         self.assertTrue(mapList)
         
         for map in mapList:
@@ -40,7 +40,7 @@ class TestFoxholeWar(unittest.TestCase):
                 self.assertTrue(item.y)
                 self.assertTrue(item.flags is not None)
 
-            report = self.client.getReport(map)
+            report = self.client.fetchReport(map)
             self.assertTrue(report is not None)
 
     

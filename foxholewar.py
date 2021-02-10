@@ -4,34 +4,39 @@ import json
 import requests
 import re
 
-BaseURL = "https://war-service-live.foxholeservices.com/api/"
+from dataclasses import dataclass, field
+
+BASE_URL = "https://war-service-live.foxholeservices.com/api/"
 
 # Because the user facing names don't map cleanly to the raw ones we need a mapping table like this
 rawMapNameToPretty = {
-    "GreatMarchHex":"Great March",
-    "MarbanHollow":"Marban Hollow",
-    "ViperPitHex":"Viper Pit",
-    "ShackledChasmHex":"Shackled Chasm",
-    "LinnMercyHex":"The Linn of Mercy",
-    "DeadLandsHex":"Deadlands",
-    "HeartlandsHex":"The Heartlands",
-    "ReachingTrailHex":"Reaching Trail",
-    "UmbralWildwoodHex":"Umbral Wildwood",
-    "CallahansPassageHex":"Callahan's Passage",
-    "DrownedValeHex":"The Drowned Vale",
-    "MooringCountyHex":"The Moors",
-    "LochMorHex":"Loch Mor",
-    "StonecradleHex":"Stonecradle",
-    "FishermansRowHex":"Fishermans Row",
-    "WestgateHex":"Westgate",
-    "OarbreakerHex":"Oarbreaker Isles",
-    "FarranacCoastHex":"Farranac Coast"
+    "GreatMarchHex": "Great March",
+    "MarbanHollow": "Marban Hollow",
+    "ViperPitHex": "Viper Pit",
+    "ShackledChasmHex": "Shackled Chasm",
+    "LinnMercyHex": "The Linn of Mercy",
+    "DeadLandsHex": "Deadlands",
+    "HeartlandsHex": "The Heartlands",
+    "ReachingTrailHex": "Reaching Trail",
+    "UmbralWildwoodHex": "Umbral Wildwood",
+    "CallahansPassageHex": "Callahan's Passage",
+    "DrownedValeHex": "The Drowned Vale",
+    "MooringCountyHex": "The Moors",
+    "LochMorHex": "Loch Mor",
+    "StonecradleHex": "Stonecradle",
+    "FishermansRowHex": "Fishermans Row",
+    "WestgateHex": "Westgate",
+    "OarbreakerHex": "Oarbreaker Isles",
+    "FarranacCoastHex": "Farranac Coast"
 }
 
-prettyMapNameToRaw = dict((reversed(item) for item in rawMapNameToPretty.items()))
+prettyMapNameToRaw = dict((reversed(item)
+                           for item in rawMapNameToPretty.items()))
+
 
 def isValidMapName(map):
-    return map in rawMapNameToPretty or map in prettyMapNameToRaw
+    return map in rawMapNameToPretty or map in rawMapNameToPretty.values()
+
 
 class Team(enum.Enum):
     """The teams"""
@@ -49,51 +54,56 @@ class MapMarkerType(enum.Enum):
     MINOR = 0
 
 
+@dataclass
 class War:
     """The information for a war"""
-    warId = None
-    warNumber = None
-    winner = Team.NONE
-    conquestStartTime = None
-    conquestEndTime = None
-    resistanceStartTime = None
-    requiredVictoryTowns = None
+    warId: int
+    warNumber: int
+    winner: Team
+    conquestStartTime: datetime
+    conquestEndTime: datetime
+    resistanceStartTime: datetime
+    requiredVictoryTowns: datetime
 
 
+@dataclass
 class Map:
     """A (hex) map"""
-    rawName = None
-    prettyName = None
-    regionId = None
-    scorchedVictoryTowns = None
-    mapItems = []
-    mapTextItems = []
+    rawName: str
+    prettyName: str
+    regionId: int = None
+    scorchedVictoryTowns: int = None
+    mapItems: list = field(default_factory=list)
+    mapTextItems: list = field(default_factory=list)
 
 
+@dataclass
 class MapItem:
     """An item on the map"""
-    teamId = Team.NONE
-    iconType = None
-    x = None
-    y = None
-    flags = None
+    teamId: Team
+    iconType: int
+    x: int
+    y: int
+    flags: int
 
 
+@dataclass
 class MapTextItem:
     """A text item on the map"""
-    text = None
-    x = None
-    y = None
-    mapMarkerType = None
+    text: str
+    x: int
+    y: int
+    mapMarkerType: int
 
 
+@dataclass
 class Report:
     """A war report for a map"""
-    map = None
-    totalEnlistments = None
-    colonialCasualties = None
-    wardenCasualties = None
-    dayOfWar = None
+    totalEnlistments: int
+    colonialCasualties: int
+    wardenCasualties: int
+    dayOfWar: int
+    version: int
 
 
 class Client:
@@ -101,77 +111,37 @@ class Client:
     def __init__(self):
         self.session = requests.Session()
 
-    def getData(self, endpoint):
-        """
-        Parameters
-        ----------
-        endpoint : str
-            The endpoint to request data from
-
-        Returns
-        -------
-        dict
-            The loaded json data from the endpoint
-        """
-        requestUrl = BaseURL + endpoint
+    def fetchJSON(self, endpoint: str) -> dict:
+        """Request some JSON data from the given endpoint"""
+        requestUrl = BASE_URL + endpoint
         response = self.session.get(requestUrl)
         return json.loads(response.text)
 
-    def getCurrentWar(self):
-        """
-        Returns
-        -------
-        War
-            The War object for the war currently takin place
-        """
-        jsonData = self.getData("worldconquest/war")
+    def fetchCurrentWar(self) -> War:
+        """Get the data for the current war"""
+        jsonData = self.fetchJSON("worldconquest/war")
 
-        war = War()
-        war.warId = jsonData["warId"],
-        war.warNumber = jsonData["warNumber"]
-        war.winner = Team[jsonData["winner"]]
-        war.conquestStartTime = jsonData["conquestStartTime"]
-        war.conquestEndTime = jsonData["conquestEndTime"]
-        war.resistanceStartTime = jsonData["resistanceStartTime"]
-        war.requiredVictoryTowns = jsonData["requiredVictoryTowns"]
-        return war
+        return War(**jsonData)
 
-    def getReport(self, map):
-        """
-        Returns
-        -------
-        Report
-            A report on the current status of this map
-        """
-        reportData = self.getData("worldconquest/warReport/" + map.rawName)
-        report = Report()
-        report.totalEnlistments = reportData["totalEnlistments"]
-        report.colonialCasualties = reportData["colonialCasualties"]
-        report.wardenCasualties = reportData["wardenCasualties"]
-        report.dayOfWar = reportData["dayOfWar"]
-        return report
+    def fetchReport(self, map: str) -> Report:
+        """Get a war report for the given map name"""
+        reportData = self.fetchJSON("worldconquest/warReport/" + map.rawName)
 
-    def getMapList(self):
-        """
-        Returns
-        -------
-        list
-            A list of all the maps
-        """
-        mapData = self.getData("worldconquest/maps")
+        return Report(**reportData)
+
+    def fetchMapList(self):
+        """Get the list of maps"""
+        mapData = self.fetchJSON("worldconquest/maps")
 
         maps = []
         for rawMapName in mapData:
-            map = Map()
-            map.rawName = rawMapName
+            map = Map(rawName=rawMapName,
+                      prettyName=rawMapNameToPretty[rawMapName])
 
-            # For the pretty name we strip "Hex" from the end and add spaces
-            map.prettyName = rawMapNameToPretty[rawMapName]
-            
             # We get the static and dynamic data too
-            staticMapData = self.getData(
+            staticMapData = self.fetchJSON(
                 "worldconquest/maps/" + map.rawName + "/static")
-            dynamicMapData = self.getData(
+            dynamicMapData = self.fetchJSON(
                 "worldconquest/maps/" + map.rawName + "/dynamic/public")
 
             map.scorchedVictoryTowns = staticMapData["scorchedVictoryTowns"]
@@ -179,21 +149,10 @@ class Client:
 
             # It seems as though we only get text items from static data and regular items from dynamic data?
             for item in staticMapData["mapTextItems"]:
-                textItem = MapTextItem()
-                textItem.text = item["text"]
-                textItem.x = item["x"]
-                textItem.y = item["y"]
-                textItem.mapMarkerType = item["mapMarkerType"]
-                map.mapTextItems.append(textItem)
+                map.mapTextItems.append(MapTextItem(**item))
 
             for item in dynamicMapData["mapItems"]:
-                mapItem = MapItem()
-                mapItem.teamId = item["teamId"]
-                mapItem.iconType = item["iconType"]
-                mapItem.x = item["x"]
-                mapItem.y = item["y"]
-                mapItem.flags = item["flags"]
-                map.mapItems.append(mapItem)
+                map.mapItems.append(MapItem(**item))
 
             maps.append(map)
 
